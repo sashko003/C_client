@@ -3,6 +3,19 @@
 int initWinsock(void);
 int closeSocket(SOCKET);
 
+typedef union unMouseActivities
+{
+	int iCoords[2];
+	struct {
+		char chX[sizeof(int)];
+		char chY[sizeof(int)];
+		char chClickType[3];
+	};
+	char chMessage[sizeof(int)*2+3];
+} MouseActivities;
+
+int findMouseCoordinates(MouseActivities *unMA);
+
 int main()
 {
 	char* strIpAddress = "127.0.0.1";
@@ -28,38 +41,46 @@ int main()
 //	hint.sin_addr.S_un.S_addr = inet_addr(strIpAddress);
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(port);
-	InetPton(AF_INET, strIpAddress, &hint.sin_addr);
+	inet_pton(AF_INET, strIpAddress, &hint.sin_addr);
 
 	// connect to server
 	int conResult = connect(sock, (struct sockaddr*)&hint, sizeof(hint));
 	if (conResult < 0) {
 		printf("Can't connect to server.\n");
-		return -1;
+		//return -1;
 	}
 
 	// do-while loop to send and receive data
 	char buffer[4096];
-	char userInput[256];
-	
+	char *userInput[256];
+	MouseActivities unMouse;
 	do {
 		// prompt the user for some text
-		printf(">");
-		fgets(userInput, 256, stdin);
-		if (strlen(userInput) > 0) {
-			// send the text
-			int sendResult = send(sock, userInput, strlen(userInput) + 1, 0);
-			if (sendResult != SOCKET_ERROR) {
-				// wait for response
-				ZeroMemory(buffer, 4096);
-				int byteReceived = recv(sock, buffer, 4096, 0);
-				if (byteReceived > 0) {
-					// echo response to console
-					printf("SERVER>%s", buffer);
-					printf("\n");
-				}
-			}
-		}
-	} while (strlen(userInput) > 0);
+		int i = findMouseCoordinates(&unMouse);
+		if (i < 0)
+			printf("Can't read coordinates\n");
+		//char chX[4], chY[4];
+		/*for (int i = 0; i < 4; i++) {
+			chX[i] = unMouse.chMessage[i];
+			chY[i] = unMouse.chMessage[i + 4];
+		}*/
+		printf("X: %d  Y: %d \n", *(int *)unMouse.chX, *(int *)unMouse.chY);
+		//if (strlen(userInput) > 0) {
+		//	// send the text
+		//	int sendResult = send(sock, userInput, strlen(userInput) + 1, 0);
+		//	if (sendResult != SOCKET_ERROR) {
+		//		// wait for response
+		//		ZeroMemory(buffer, 4096);
+		//		int byteReceived = recv(sock, buffer, 4096, 0);
+		//		if (byteReceived > 0) {
+		//			// echo response to console
+		//			printf("SERVER>%s", buffer);
+		//			printf("\n");
+		//		}
+		//	}
+		//}
+		Sleep(500);
+	} while (1);
 
 	// close down everything
 	closeSocket(sock);
@@ -90,4 +111,25 @@ int closeSocket(SOCKET sock)
 #endif
 
 	return iStatus;
+}
+
+int findMouseCoordinates(MouseActivities *unMA)
+{
+	//POINT point;
+	LPPOINT pCursor = (LPPOINT)malloc(sizeof(LPPOINT));
+	//MouseActivities maCoords = {0,0};
+		if (!GetCursorPos(pCursor))
+			return -1;
+		//Sleep(1000);
+		unMA->iCoords[0] = pCursor->x;
+		unMA->iCoords[1] = pCursor->y;
+		/*printf("X: ", pCursor->x); printf(" Y: ", pCursor->y); printf("\n");
+		if (GetAsyncKeyState(VK_LBUTTON)) {
+			printf("Left mouse click: X: ", pCursor->x); printf(" Y: ", pCursor->y); printf("\n");
+		}
+		if (GetAsyncKeyState(VK_RBUTTON)) {
+			printf("Right mouse click: X: ", pCursor->x); printf(" Y: ", pCursor->y); printf("\n");
+		}*/
+	//free((void*)pCursor);
+	return 0;
 }
