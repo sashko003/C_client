@@ -24,13 +24,14 @@ int main()
 
 	// fill in hont structure
 	struct sockaddr_in hint;
+	hint.sin_addr.S_un.S_addr = inet_addr(strIpAddress);
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(port);
-	InetPton(AF_INET, strIpAddress, &hint.sin_addr);
+	//InetPton(AF_INET, strIpAddress, &hint.sin_addr);
 
 	// connect to server
 	int conResult = connect(sock, (struct sockaddr*)&hint, sizeof(hint));
-	if (conResult == SOCKET_ERROR) {
+	if (conResult < 0) {
 		printf("Can't connect to server.\n");
 		return -1;
 	}
@@ -59,8 +60,10 @@ int main()
 	} while (strlen(userInput) > 0);
 
 	// close down everything
-	closesocket(sock);
+	closeSocket(sock);
+#ifdef WINDOWS
 	WSACleanup();
+#endif
 	return 0;
 }
 
@@ -69,4 +72,20 @@ int initWinsock(void)
 	WSADATA wsaData;
 	WORD wVersion = MAKEWORD(2, 2);
 	return WSAStartup(wVersion, &wsaData);
+}
+
+int closeSocket(SOCKET sock)
+{
+	int iStatus = 0;
+
+#ifdef WINDOWS
+	iStatus = shutdown(sock, SD_BOTH);
+	if (iStatus == 0) { iStatus = closesocket(sock); }
+#endif
+#ifdef LINUX
+	iStatus = shutdown(sock, SHUT_RDWR);
+	if (iStatus == 0) { iStatus = close(sock); }
+#endif
+
+	return iStatus;
 }

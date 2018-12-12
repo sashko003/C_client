@@ -17,6 +17,7 @@
 
 #define SOCKET int
 #define INVALID_SOCKET -1
+#define 
 #endif // LINUX
 
 #endif // !C_CLIENT_HEADER_H_
