@@ -1,6 +1,7 @@
 #include "header.h"
 
 int initWinsock(void);
+int closeSocket(SOCKET);
 
 int main()
 {
@@ -24,10 +25,10 @@ int main()
 
 	// fill in hont structure
 	struct sockaddr_in hint;
-	hint.sin_addr.S_un.S_addr = inet_addr(strIpAddress);
+//	hint.sin_addr.S_un.S_addr = inet_addr(strIpAddress);
 	hint.sin_family = AF_INET;
 	hint.sin_port = htons(port);
-	//InetPton(AF_INET, strIpAddress, &hint.sin_addr);
+	InetPton(AF_INET, strIpAddress, &hint.sin_addr);
 
 	// connect to server
 	int conResult = connect(sock, (struct sockaddr*)&hint, sizeof(hint));
@@ -38,12 +39,12 @@ int main()
 
 	// do-while loop to send and receive data
 	char buffer[4096];
-	char *userInput;
-
+	char userInput[256];
+	
 	do {
 		// prompt the user for some text
 		printf(">");
-		scanf("%s", &userInput);
+		fgets(userInput, 256, stdin);
 		if (strlen(userInput) > 0) {
 			// send the text
 			int sendResult = send(sock, userInput, strlen(userInput) + 1, 0);
@@ -54,6 +55,7 @@ int main()
 				if (byteReceived > 0) {
 					// echo response to console
 					printf("SERVER>%s", buffer);
+					printf("\n");
 				}
 			}
 		}
