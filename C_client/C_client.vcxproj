@@ -110,12 +110,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="client.c" />
+    <ClCompile Include="closeSocket.c" />
+    <ClCompile Include="findMouseCoordinates.c" />
+    <ClCompile Include="initSocket.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="client.h" />
     <ClInclude Include="header.h" />
+    <ClInclude Include="mouseActivities.h" />
     <ClInclude Include="os.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

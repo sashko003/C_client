@@ -3,6 +3,7 @@
 #include "os.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #ifdef WINDOWS
@@ -19,5 +20,16 @@
 #define INVALID_SOCKET -1
 #define 
 #endif // LINUX
+
+#include "mouseActivities.h"
+
+#define IP_ADDRESS "127.0.0.1"
+#define PORT 9999
+#define X_COORD 0
+#define Y_COORD 1
+#define TIME 500
+
+int initializeSocket(void);
+int closeSocket(SOCKET);
 
 #endif // !C_CLIENT_HEADER_H_

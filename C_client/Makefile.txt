@@ -1,0 +1,21 @@
+C = gcc
+
+all: client
+
+client: main.o initSocket.o closeSocket.o findMouseCoordinates.o
+	$(C) main.o initSocket.o closeSocket.o findMouseCoordinates.o -o client
+
+main.o: main.c
+	$(C) main.c
+
+initSocket.o: initSocket.c
+	$(C) initSocket.c
+
+closeSocket.o: closeSocket.c
+	$(C) closeSocket.c
+
+findMouseCoordinates.o: findMouseCoordinates.c
+	$(C) findMouseCoordinates.c
+
+clean:
+	rm -rf *.o client
