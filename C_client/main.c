@@ -11,7 +11,7 @@ typedef union unMouseActivities
 		char chY[sizeof(int)];
 		char chClickType[3];
 	};
-	char chMessage[sizeof(int)*2+3];
+	char chMessage[sizeof(int) * 2 + 3] ;
 } MouseActivities;
 
 int findMouseCoordinates(MouseActivities *unMA);
@@ -47,39 +47,43 @@ int main()
 	int conResult = connect(sock, (struct sockaddr*)&hint, sizeof(hint));
 	if (conResult < 0) {
 		printf("Can't connect to server.\n");
-		//return -1;
+		return -1;
 	}
 
 	// do-while loop to send and receive data
 	char buffer[4096];
 	char *userInput[256];
-	MouseActivities unMouse;
+	MouseActivities unMouse; 
+	unMouse.chClickType[0] = '\0';
 	do {
 		// prompt the user for some text
 		int i = findMouseCoordinates(&unMouse);
-		if (i < 0)
+		if (i < 0) // define good result, bad result of findMouseCoordinates
 			printf("Can't read coordinates\n");
-		//char chX[4], chY[4];
-		/*for (int i = 0; i < 4; i++) {
-			chX[i] = unMouse.chMessage[i];
-			chY[i] = unMouse.chMessage[i + 4];
-		}*/
+		
 		printf("X: %d  Y: %d \n", *(int *)unMouse.chX, *(int *)unMouse.chY);
-		//if (strlen(userInput) > 0) {
-		//	// send the text
-		//	int sendResult = send(sock, userInput, strlen(userInput) + 1, 0);
-		//	if (sendResult != SOCKET_ERROR) {
-		//		// wait for response
-		//		ZeroMemory(buffer, 4096);
-		//		int byteReceived = recv(sock, buffer, 4096, 0);
-		//		if (byteReceived > 0) {
-		//			// echo response to console
-		//			printf("SERVER>%s", buffer);
-		//			printf("\n");
-		//		}
-		//	}
-		//}
-		Sleep(500);
+		if (strlen(unMouse.chMessage) > 0) {
+			// send the text
+			int sendResult = send(sock, unMouse.chMessage, sizeof(unMouse.chMessage) + 1, 0);
+			if (sendResult != SOCKET_ERROR) {
+				// wait for response
+				ZeroMemory(unMouse.chMessage, sizeof(unMouse.chMessage));
+				int byteReceived = recv(sock, unMouse.chMessage, sizeof(unMouse.chMessage), 0);
+				if (byteReceived == SOCKET_ERROR) {
+					printf("Error in recv().\n");
+					break;
+				}
+				if (byteReceived == 0) {
+					printf("Client disconnected. \n");
+					break;
+				}
+					// echo response to console
+					printf("SERVER> X: %d  Y: %d \n", unMouse.iCoords[0], unMouse.iCoords[1]);
+					//printf("\n");
+				
+			}
+		}
+		Sleep(5000);
 	} while (1);
 
 	// close down everything
