@@ -28,46 +28,29 @@ int findMouseCoordinates(MouseActivities *unMA)
 	Window ret_child;
 	int win_x;
 	int win_y;
-	//int button;
-	unsigned int mask, button;
+	unsigned int mask, button = -1;
 
 	display = XOpenDisplay(NULL);
 	root = XDefaultRootWindow(display);
 
-	if(!XQueryPointer(display, root, &ret_root, &ret_child, &unMA->iCoords[X_COORD], &unMA->iCoords[Y_COORD],
-					 &win_x, &win_y, &button))
-	{
-        return -1;
-		// original version
-		//    printf("root loc: %4d,%4d win loc: %3d,%3d mask: 0x%08X\n",
-		//           root_x, root_y, win_x, win_y, mask);
+	XEvent event;
+    memset (&event, 0, sizeof (event));
+    event.xbutton.button = button;
+    event.xbutton.same_screen = True;
+    event.xbutton.subwindow = DefaultRootWindow (display);
 
-		// This returns in -geometry format
-		// I added \n so it actually shows something so people who test it know it works.
-		//printf("+%d+%d\n", root_x, root_y);
-	}
+    event.xbutton.window = event.xbutton.subwindow;
+    XQueryPointer (display, event.xbutton.window,
+		     &event.xbutton.root, &event.xbutton.subwindow,
+		     &event.xbutton.x_root, &event.xbutton.y_root,
+		     &unMA->iCoords[X_COORD], &unMA->iCoords[Y_COORD],
+		     &event.xbutton.state);
 
-	//if(XGrabPointer(display, root, False, ButtonPressMask | ButtonReleaseMask |
-    //                 PointerMotionMask, GrabModeAsync,
-    //    GrabModeAsync, None, None, CurrentTime))
-    //    return 0;
-
-    //if(!XSelectInput(display, root, ButtonPressMask))
-    //    return 0;
-    //XUngrabPointer(display, CurrentTime);
-    sleep(1);
-    //XAllowEvents(display, AsyncPointer, CurrentTime);
-    XSelectInput(display, root, ButtonPressMask | ButtonReleaseMask | PointerMotionMask);
-    XEvent event;
-    XNextEvent(display,&event);
-    XFlush(display);
-    if(event.type == ButtonPress){
-        if(event.xbutton.button == Button1)
+        if(event.xbutton.state == 256)
             strcpy(unMA->chClickType, "LMK");
-        else if(event.xbutton.button == Button2)
+        else if(event.xbutton.state == 1024)
             strcpy(unMA->chClickType, "RMK");
-    }
-
+    printf("state %d button %d event type %d", event.xbutton.state,event.xbutton.button, event.type );
 
 //#endif // LINUX
 	return 0;
