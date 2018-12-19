@@ -3,7 +3,7 @@
 
 #include "header.h"
 #define COORDINATES 2
-#define CLICK_TYPE 3
+#define CLICK_TYPE 4
 
 typedef union unMouseActivities
 {
@@ -11,9 +11,9 @@ typedef union unMouseActivities
 	struct {
 		char chX[sizeof(int)];
 		char chY[sizeof(int)];
-		char *chClickType;
+		char chClickType[CLICK_TYPE];
 	};
-	char chMessage[sizeof(int) * COORDINATES + CLICK_TYPE + 1];// for '\0'
+	char chMessage[sizeof(int) * COORDINATES + CLICK_TYPE];// for '\0'
 } MouseActivities;
 
 #ifdef WINDOWS

@@ -1,7 +1,7 @@
 #ifndef C_CLIENT_HEADER_H_
 #define C_CLIENT_HEADER_H_
 #include "os.h"
-
+#define LINUX
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,10 +15,14 @@
 #ifdef LINUX
 #include <sys/socket.h> //socket
 #include <arpa/inet.h> // inet_addr
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <unistd.h>
 
 #define SOCKET int
 #define INVALID_SOCKET -1
-#define 
+#define SOCKET_ERROR -1
+
 #endif // LINUX
 
 #include "mouseActivities.h"
